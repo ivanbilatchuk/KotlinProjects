@@ -1,3 +1,3 @@
-package ua.edu.chnu.kkn.firstproj
+package firstproj
 
 actual fun getPlatformName(): String = "Web"

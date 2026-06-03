@@ -1,4 +1,4 @@
-package ua.edu.chnu.kkn.firstproj
+package firstproj
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

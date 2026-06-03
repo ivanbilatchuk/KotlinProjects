@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.androidLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
 }
@@ -16,13 +16,16 @@ kotlin {
         }
     }
     
-    listOf(
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "ComposeApp"
-            isStatic = true
+    val isMac = System.getProperty("os.name").lowercase().contains("mac")
+    if (isMac) {
+        listOf(
+            iosArm64(),
+            iosSimulatorArm64()
+        ).forEach { iosTarget ->
+            iosTarget.binaries.framework {
+                baseName = "ComposeApp"
+                isStatic = true
+            }
         }
     }
     
@@ -41,14 +44,14 @@ kotlin {
     
     sourceSets {
         androidMain.dependencies {
-            implementation(libs.androidx.activity-compose)
+            implementation(libs.androidx.activity.compose)
         }
         commonMain.dependencies {
-            implementation(libs.compose.runtime)
-            implementation(libs.compose.foundation)
-            implementation(libs.compose.material3)
-            implementation(libs.compose.ui)
-            implementation(libs.compose.components.resources)
+            implementation(compose.runtime)
+            implementation(compose.foundation)
+            implementation(compose.material3)
+            implementation(compose.ui)
+            implementation(compose.components.resources)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -60,15 +63,11 @@ kotlin {
 }
 
 android {
-    namespace = "ua.edu.chnu.kkn.firstproj"
+    namespace = "firstproj"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "ua.edu.chnu.kkn.firstproj"
         minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
     }
     buildTypes {
         getByName("release") {
@@ -82,12 +81,12 @@ android {
 }
 
 dependencies {
-    debugImplementation(libs.compose.uiTooling)
+    debugImplementation(compose.uiTooling)
 }
 
 compose.desktop {
     application {
-        mainClass = "ua.edu.chnu.kkn.firstproj.MainKt"
+        mainClass = "firstproj.MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Msi)
             packageName = "FirstProj"

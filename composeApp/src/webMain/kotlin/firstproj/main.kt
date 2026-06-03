@@ -1,4 +1,4 @@
-package ua.edu.chnu.kkn.firstproj
+package firstproj
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
