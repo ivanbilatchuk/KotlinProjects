@@ -16,6 +16,9 @@ import androidx.compose.ui.unit.dp
 import co.touchlab.kermit.Logger
 import firstproj.TimeZoneHelperImpl
 import firstproj.ui.screens.AppScreen
+import firstproj.ui.screens.timezone.AddTimeZoneDialog
+import firstproj.ui.screens.timezone.TimeZonePage
+import firstproj.ui.screens.timezone.FindMeetingPage
 
 @Composable
 fun MainScreen(
@@ -23,11 +26,99 @@ fun MainScreen(
     modifier: Modifier = Modifier
 ) {
     val timeZoneHelper = remember { TimeZoneHelperImpl() }
+    val showAddDialog = remember { mutableStateOf(false) }
+    val currentTimezoneStrings = remember {
+        mutableStateListOf<String>().apply {
+            val localZone = timeZoneHelper.currentTimeZone()
+            if (localZone.isNotEmpty() && !contains(localZone)) {
+                add(localZone)
+            }
+        }
+    }
+    var selectedIndex by remember { mutableStateOf(0) }
+
+    Scaffold(
+        bottomBar = {
+            NavigationBar(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            ) {
+                NavigationBarItem(
+                    label = { Text("Timezones", style = MaterialTheme.typography.bodyMedium) },
+                    icon = { Icon(Icons.Default.Home, contentDescription = "Timezones") },
+                    selected = selectedIndex == 0,
+                    onClick = { selectedIndex = 0 }
+                )
+                NavigationBarItem(
+                    label = { Text("Find Meeting", style = MaterialTheme.typography.bodyMedium) },
+                    icon = { Icon(Icons.Default.Place, contentDescription = "Find Meeting") },
+                    selected = selectedIndex == 1,
+                    onClick = { selectedIndex = 1 }
+                )
+                NavigationBarItem(
+                    label = { Text("UI Showcase", style = MaterialTheme.typography.bodyMedium) },
+                    icon = { Icon(Icons.Default.Star, contentDescription = "UI Showcase") },
+                    selected = selectedIndex == 2,
+                    onClick = { selectedIndex = 2 }
+                )
+            }
+        },
+        floatingActionButton = {
+            if (selectedIndex == 0) {
+                FloatingActionButton(
+                    onClick = { showAddDialog.value = true },
+                    shape = FloatingActionButtonDefaults.largeShape,
+                    modifier = Modifier.padding(16.dp),
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Add Timezone")
+                }
+            }
+        },
+        modifier = modifier.fillMaxSize()
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            if (showAddDialog.value) {
+                AddTimeZoneDialog(
+                    onAdd = { newTimezones ->
+                        showAddDialog.value = false
+                        for (zone in newTimezones) {
+                            if (!currentTimezoneStrings.contains(zone)) {
+                                currentTimezoneStrings.add(zone)
+                            }
+                        }
+                    },
+                    onDismiss = { showAddDialog.value = false }
+                )
+            }
+
+            when (selectedIndex) {
+                0 -> TimeZonePage(currentTimezoneStrings)
+                1 -> FindMeetingPage(currentTimezoneStrings)
+                2 -> UIShowcaseContent(
+                    timeZoneHelper = timeZoneHelper,
+                    onNavigateToScreen = onNavigateToScreen
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun UIShowcaseContent(
+    timeZoneHelper: TimeZoneHelperImpl,
+    onNavigateToScreen: (AppScreen) -> Unit
+) {
     var currentTime by remember { mutableStateOf(timeZoneHelper.currentTime()) }
     var currentTimeZone by remember { mutableStateOf(timeZoneHelper.currentTimeZone()) }
 
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
