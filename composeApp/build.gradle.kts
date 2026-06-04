@@ -52,6 +52,8 @@ kotlin {
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
+            implementation(libs.kermit)
+            implementation(libs.datetime)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
